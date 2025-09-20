@@ -1,0 +1,280 @@
+public class Cuenta {
+    private double saldo;
+    private String cuentaHabiente;
+    private int numeroCuenta;
+    private static int contador = 0;
+
+    // Constructor que recibe un parámetro (saldo inicial)
+  public Cuenta(double saldoInicial) {
+        this.saldo = saldoInicial;
+        this.cuentaHabiente = "Sin nombre"; // Valor por defecto temporal
+        contador++;
+        this.numeroCuenta = contador;
+  }
+
+    // Constructor que recibe dos parámetros (saldo inicial y nombre del titular)
+  public Cuenta(double saldoInicial, String nombreCuentaHabiente) {
+        this.saldo = saldoInicial;
+        this.cuentaHabiente = nombreCuentaHabiente;
+        contador++;
+        this.numeroCuenta = contador;
+  }
+
+    // Método para depositar dinero
+  public double depositar(double monto) {
+        if (monto > 0) {
+            this.saldo += monto;
+        }
+        return this.saldo;
+  }
+
+    // Método para validar si un retiro es posible
+  public boolean validarRetiro(double monto) {
+        return this.saldo >= monto;
+  }
+
+    // Método para retirar dinero
+  public double retirar(double monto) {
+        if (monto > 0 && this.validarRetiro(monto)) {
+            this.saldo -= monto;
+        }
+        // Si el monto es inválido o saldo insuficiente, devuelve el saldo sin cambios
+        return this.saldo;
+  }
+
+    // Método toString para mostrar el estado completo del objeto
+  public String toString() {
+        return "Cuenta: " + this.numeroCuenta +
+               "  Titular: " + this.cuentaHabiente +
+               "  Saldo: " + String.format("%.2f", this.saldo);
+  }
+
+    // Getter para el número de cuenta
+  public int getNumeroCuenta() {
+        return this.numeroCuenta;
+  }
+
+    // Getter para el nombre del cuenta habiente
+  public String getCuentaHabiente() {
+        return this.cuentaHabiente;
+  }
+
+    // Setter para el nombre del cuenta habiente (para completar el objeto)
+  public void setCuentaHabiente(String nombre) {
+        if (nombre != null && !nombre.trim().isEmpty()) {
+            this.cuentaHabiente = nombre;
+        }
+  }
+
+    // Método de clase (static) para obtener el valor del contador
+  public static int getContador() {
+        return contador;
+  }
+
+    // Método de clase (static) para obtener la cantidad de cuentas creadas (REQUERIDO POR LA RÚBRICA)
+  public static int getCantCuentasCreadas() {
+        return contador;
+  }
+}
+
+import java.util.Scanner;
+import java.util.ArrayList;
+public class PrincipalCuenta {
+  private static Scanner scanner = new Scanner(System.in);
+  private static ArrayList<Cuenta> listaCuentas = new ArrayList<>();
+  private static Cuenta cuentaActual = null;
+
+  public static void main(String[] args) {
+    int opcion;
+    do {
+        mostrarMenu();
+        opcion = leerOpcion();
+        procesarOpcion(opcion);
+    } while (opcion != 0);
+        System.out.println("¡Salió del sistema!");
+  }
+
+  private static void mostrarMenu() {
+    System.out.println("\n=== Menú Principal ===");
+    System.out.println("1) Crear Cuenta");
+    System.out.println("2) Conocer la cantidad de Cuentas Creadas");
+    System.out.println("3) Listar Cuentas");
+    System.out.println("4) Seleccionar Cuenta actual");
+    System.out.println("5) Depositar");
+    System.out.println("6) Retirar");
+    System.out.println("7) Consultar Saldo");
+    System.out.println("8) Consultar Estado (toString)");
+    System.out.println("0) Salir");
+    System.out.print("Seleccione una opción: ");
+  }
+
+  private static int leerOpcion() {
+    try {
+        return Integer.parseInt(scanner.nextLine());
+    } catch (NumberFormatException e) {
+         return -1; 
+    }
+  }
+
+  private static void procesarOpcion(int opcion) {
+    switch (opcion) {
+        case 1:
+            crearCuenta();
+            break;
+        case 2:
+            mostrarCantidadCuentas();
+            break;
+        case 3:
+            listarCuentas();
+            break;
+        case 4:
+            seleccionarCuenta();
+            break;
+        case 5:
+            depositar();
+            break;
+        case 6:
+            retirar();
+            break;
+        case 7:
+            consultarSaldo();
+            break;
+        case 8:
+            consultarEstado();
+             break;
+        case 0:
+            System.out.println("Saliendo...");
+            break;
+        default:
+            System.out.println("Opción no válida. Intente de nuevo.");
+    }
+  }
+
+  private static void crearCuenta() {
+    System.out.print("Ingrese el saldo inicial: ");
+    double saldoInicial = leerDouble();
+    System.out.println("¿Desea ingresar el nombre del titular ahora? (s/n): ");
+    String respuesta = scanner.nextLine().trim().toLowerCase();
+    if ("s".equals(respuesta)) {
+        System.out.print("Ingrese el nombre del titular: ");
+        String nombre = scanner.nextLine();
+        Cuenta nuevaCuenta = new Cuenta(saldoInicial, nombre);
+        listaCuentas.add(nuevaCuenta);
+        System.out.println("¡Cuenta creada con éxito!");
+        System.out.println(nuevaCuenta.toString());
+    } 
+    else {
+        Cuenta nuevaCuenta = new Cuenta(saldoInicial);
+        listaCuentas.add(nuevaCuenta);
+        System.out.println("Cuenta creada. Por favor, complete el nombre del titular.");
+        System.out.print("Ingrese el nombre del titular: ");
+        String nombre = scanner.nextLine();
+        nuevaCuenta.setCuentaHabiente(nombre);
+        System.out.println("¡Nombre actualizado!");
+        System.out.println(nuevaCuenta.toString());
+    }
+  }
+
+  
+  private static void mostrarCantidadCuentas() {
+    System.out.println("Cantidad total de cuentas creadas: " + Cuenta.getCantCuentasCreadas()); // Usa el método requerido por la rúbrica
+  }
+
+  
+  private static void listarCuentas() {
+    if (listaCuentas.isEmpty()) {
+        System.out.println("No hay cuentas creadas.");
+        return;
+    }
+    System.out.println(" Lista de Cuentas ");
+    for (int i = 0; i < listaCuentas.size(); i++) {
+        System.out.println((i + 1) + ") " + listaCuentas.get(i).toString());
+    }
+  }
+
+  
+  private static void seleccionarCuenta() {
+    if (listaCuentas.isEmpty()) {
+        System.out.println("No hay cuentas para seleccionar.");
+        return;
+    }
+    listarCuentas();
+    System.out.print("Ingrese el número de la cuenta que desea seleccionar: ");
+    int indice = leerInt() - 1;
+    if (indice >= 0 && indice < listaCuentas.size()) {
+        cuentaActual = listaCuentas.get(indice);
+        System.out.println("Cuenta seleccionada: " + cuentaActual.getNumeroCuenta());
+    } 
+    else {
+        System.out.println("Número de cuenta inválido.");
+    }
+  }
+  
+  
+  private static void depositar() {
+    if (cuentaActual == null) {
+        System.out.println("Primero debe seleccionar una cuenta.");
+        return;
+    }
+    System.out.print("Ingrese el monto a depositar: ");
+    double monto = leerDouble();
+    double nuevoSaldo = cuentaActual.depositar(monto);
+    System.out.println("Depósito realizado. Nuevo saldo: " + String.format("%.2f", nuevoSaldo));
+  }
+
+  
+  private static void retirar() {
+    if (cuentaActual == null) {
+        System.out.println("Primero debe seleccionar una cuenta.");
+        return;
+    }
+    System.out.print("Ingrese el monto a retirar: ");
+    double monto = leerDouble();
+    if (cuentaActual.validarRetiro(monto)) { // Usa el método validarRetiro requerido por la rúbrica
+        double nuevoSaldo = cuentaActual.retirar(monto);
+        System.out.println("Retiro realizado. Nuevo saldo: " + String.format("%.2f", nuevoSaldo));
+    } 
+    else {
+        System.out.println("Fondos insuficientes. Saldo actual: " + String.format("%.2f", cuentaActual.retirar(0)));
+    }
+  }
+
+  
+  private static void consultarSaldo() {
+    if (cuentaActual == null) {
+        System.out.println("Primero debe seleccionar una cuenta.");
+        return;
+    }
+    System.out.println("Saldo actual: " + String.format("%.2f", cuentaActual.retirar(0))); // retirar(0) devuelve saldo sin cambiarlo
+  }
+
+  
+  private static void consultarEstado() {
+    if (cuentaActual == null) {
+        System.out.println("Primero debe seleccionar una cuenta.");
+        return;
+    }
+    System.out.println(" Estado de la Cuenta ");
+    System.out.println(cuentaActual.toString());
+  }
+
+
+  private static double leerDouble() {
+    try {
+        return Double.parseDouble(scanner.nextLine());
+    } catch (NumberFormatException e) {
+        System.out.print("Entrada inválida. Ingrese un número: ");
+        return leerDouble(); // Recursión simple para reintentar
+    }
+  }
+
+  
+  private static int leerInt() {
+    try {
+        return Integer.parseInt(scanner.nextLine());
+    } catch (NumberFormatException e) {
+        System.out.print("Entrada inválida. Ingrese un número entero: ");
+        return leerInt();
+    }
+  }
+}
